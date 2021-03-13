@@ -9,67 +9,14 @@ import (
 
 var BotID string
 var goBot *discordgo.Session
+
+var pollByChannel map[string]Poll = make(map[string]Poll)
+
 var pollMessageByChannel map[string]*discordgo.Message = make(map[string]*discordgo.Message)
 var runoffMessageByChannel map[string]*discordgo.Message = make(map[string]*discordgo.Message)
 var lastLetterByChannel map[string]int = make(map[string]int)
-var emotes map[int]string = map[int]string{
-	0:  "🇦",
-	1:  "🇧",
-	2:  "🇨",
-	3:  "🇩",
-	4:  "🇪",
-	5:  "🇫",
-	6:  "🇬",
-	7:  "🇭",
-	8:  "🇮",
-	9:  "🇯",
-	10: "🇰",
-	11: "🇱",
-	12: "🇲",
-	13: "🇳",
-	14: "🇴",
-	15: "🇵",
-	16: "🇶",
-	17: "🇷",
-	18: "🇸",
-	19: "🇹",
-	20: "🇺",
-	21: "🇻",
-	22: "🇼",
-	23: "🇽",
-	24: "🇾",
-	25: "🇿",
-}
 var entriesByChannel map[string]map[string]string = make(map[string]map[string]string)
 var entriesReverseByChannel map[string]map[string]string = make(map[string]map[string]string)
-var entries map[string]string = map[string]string{
-	"🇦": "🇦",
-	"🇧": "🇧",
-	"🇨": "🇨",
-	"🇩": "🇩",
-	"🇪": "🇪",
-	"🇫": "🇫",
-	"🇬": "🇬",
-	"🇭": "🇭",
-	"🇮": "🇮",
-	"🇯": "🇯",
-	"🇰": "🇰",
-	"🇱": "🇱",
-	"🇲": "🇲",
-	"🇳": "🇳",
-	"🇴": "🇴",
-	"🇵": "🇵",
-	"🇶": "🇶",
-	"🇷": "🇷",
-	"🇸": "🇸",
-	"🇹": "🇹",
-	"🇺": "🇺",
-	"🇻": "🇻",
-	"🇼": "🇼",
-	"🇽": "🇽",
-	"🇾": "🇾",
-	"🇿": "🇿",
-}
 
 func Start() {
 	goBot, err := discordgo.New("Bot " + config.Token)
@@ -99,115 +46,75 @@ func Start() {
 	fmt.Println("Bot is running!")
 }
 
-func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
+func messageHandler(session *discordgo.Session, message *discordgo.MessageCreate) {
 
-	if strings.HasPrefix(m.Content, config.BotPrefix) {
-		if m.Author.ID == BotID {
+	if strings.HasPrefix(message.Content, config.BotPrefix) {
+		if message.Author.ID == BotID {
 			return
 		}
 
-		if strings.HasPrefix(m.Content, config.BotPrefix+"add:") {
-			//Add option to poll
-			addOption(s, m)
+		if strings.HasPrefix(message.Content, config.BotPrefix+"start") {
+			pollByChannel[message.ChannelID] = start(session, message)
 		}
 
-		if strings.HasPrefix(m.Content, config.BotPrefix+"result") {
-			var res = getResult(s, m)
-			_, _ = s.ChannelMessageSend(m.ChannelID, res)
+		if strings.HasPrefix(message.Content, config.BotPrefix+"add:") {
+			//Doesn't let you pass an address for some god forsaken reason, so temp variable workaround
+			temp := pollByChannel[message.ChannelID]
+			addOption(&(temp), session, message)
+			pollByChannel[message.ChannelID] = temp
+		}
+
+		if message.Content == config.BotPrefix+"repin" {
+			pin(pollByChannel[message.ChannelID], session, message)
+		}
+
+		if message.Content == config.BotPrefix+"help" {
+			help(session, message)
+		}
+
+		if strings.HasPrefix(message.Content, config.BotPrefix+"result") {
+			var poll = pollByChannel[message.ChannelID]
+			var res = getResult(poll, session)
+			_, _ = session.ChannelMessageSend(poll.channel, res)
 			//unpin
-			s.ChannelMessageUnpin(m.ChannelID, pollMessageByChannel[m.ChannelID].Content)
+			unpin(poll, session, message)
 		}
 
-		if m.Content == config.BotPrefix+"repin" {
-			//Pin again
-			s.ChannelMessagePin(m.ChannelID, pollMessageByChannel[m.ChannelID].Content)
-		}
+		//--------------------------Migrated-------------------------------------
 
-		if strings.HasPrefix(m.Content, config.BotPrefix+"reset") {
-			var split = strings.Split(m.Content, " ")
-			if entriesByChannel[m.ChannelID] == nil {
-				reset(s, m)
+		if strings.HasPrefix(message.Content, config.BotPrefix+"reset") {
+			var poll = pollByChannel[message.ChannelID]
+			var split = strings.Split(message.Content, " ")
+			if entriesByChannel[message.ChannelID] == nil {
+				reset(session, message)
 			} else if len(split) == 1 || split[1] == "" {
-				resetCarryOver(s, m, "")
+				resetCarryOver(poll, session, message, "")
 			} else if len(split) > 1 && split[1] == "all" {
-				reset(s, m)
+				reset(session, message)
 			} else {
-				resetCarryOver(s, m, split[1])
+				resetCarryOver(poll, session, message, split[1])
 			}
 		}
 
-		if m.Content == config.BotPrefix+"runoff" {
-			runoff(s, m)
+		if message.Content == config.BotPrefix+"runoff" {
+			var poll = pollByChannel[message.ChannelID]
+			runoff(poll, session, message)
 		}
 
-		if m.Content == config.BotPrefix+"runoffResult" {
-			var res = runoffRes(s, m)
-			_, _ = s.ChannelMessageSend(m.ChannelID, res)
-		}
-
-		if m.Content == config.BotPrefix+"help" {
-			_, _ = s.ChannelMessageSend(m.ChannelID, "All commands start with: '"+config.BotPrefix+"' \n'add: XXX' command to add an option called XXX, \n'result' to calculate winner, \n'runoff' to start a runoff poll between all tied winners.  'runoffResult' for that result.  Next reset must pass in winner to remove from carry over.\n'reset' to reset the poll and start a new one with all but the winner from the last one.   If you want a full reset, 'reset all'")
+		if message.Content == config.BotPrefix+"runoffResult" {
+			var poll = pollByChannel[message.ChannelID]
+			var res = runoffRes(poll, session, message)
+			_, _ = session.ChannelMessageSend(message.ChannelID, res)
 		}
 	}
-}
-
-func addOption(s *discordgo.Session, message *discordgo.MessageCreate) {
-	var emote string = emotes[lastLetterByChannel[message.ChannelID]] //Pull from dictionary
-	var split = strings.Split(message.Content, ": ")
-	fmt.Println(entriesByChannel)
-	entriesByChannel[message.ChannelID][emote] = split[1]
-	entriesReverseByChannel[message.ChannelID][split[1]] = emote
-	pollMessageByChannel[message.ChannelID].Content = pollMessageByChannel[message.ChannelID].Content + "\n" + split[1] + ": " + emote + "\n"
-	_, _ = s.ChannelMessageEdit(message.ChannelID, pollMessageByChannel[message.ChannelID].ID, pollMessageByChannel[message.ChannelID].Content)
-	go s.MessageReactionAdd(message.ChannelID, pollMessageByChannel[message.ChannelID].ID, emote)
-	lastLetterByChannel[message.ChannelID]++
-}
-
-func getResult(s *discordgo.Session, message *discordgo.MessageCreate) string {
-	return getResultHelper(s, message, pollMessageByChannel[message.ChannelID])
-}
-
-func getResultHelper(s *discordgo.Session, message *discordgo.MessageCreate, reactionMessage *discordgo.Message) string {
-	var biggest int = 0
-	var emote string
-	for key, _ := range entriesByChannel[message.ChannelID] {
-		var users, _ = s.MessageReactions(message.ChannelID, reactionMessage.ID, key, 100, "", "")
-		var size = len(users)
-		if size >= biggest {
-			if size > biggest {
-				biggest = size
-				emote = key
-			} else {
-				emote = emote + "," + key
-			}
-		}
-	}
-
-	var split = strings.Split(emote, ",")
-	var entry = entriesByChannel[message.ChannelID][split[0]]
-	var result = entry + " (" + entriesReverseByChannel[message.ChannelID][entry] + ")"
-	for i := 1; i < len(split); i++ {
-		entry = entriesByChannel[message.ChannelID][split[i]]
-		result = result + ", " + entry + " (" + entriesReverseByChannel[message.ChannelID][entry] + ")"
-	}
-	return result
-}
-
-func copyMap(m map[string]string) map[string]string {
-	cp := make(map[string]string)
-	for k, v := range m {
-		cp[k] = v
-	}
-
-	return cp
 }
 
 //remove the winner
-func resetCarryOver(s *discordgo.Session, message *discordgo.MessageCreate, winner string) {
+func resetCarryOver(poll Poll, s *discordgo.Session, message *discordgo.MessageCreate, winner string) {
 	var won string = winner
 	if winner == "" {
 		//find winner
-		var res string = getResult(s, message)
+		var res string = getResult(poll, s)
 		var splitRes []string = strings.Split(res, " (")
 		won = splitRes[0]
 	}
@@ -244,8 +151,8 @@ func reset(s *discordgo.Session, message *discordgo.MessageCreate) {
 	s.ChannelMessagePin(message.ChannelID, pollMessageByChannel[message.ChannelID].Content)
 }
 
-func runoff(s *discordgo.Session, message *discordgo.MessageCreate) {
-	var split []string = strings.Split(getResult(s, message), ", ")
+func runoff(poll Poll, s *discordgo.Session, message *discordgo.MessageCreate) {
+	var split []string = strings.Split(getResult(poll, s), ", ")
 	var messageOutput string = "Runoff poll:\n"
 	var emotes []string
 	for _, key := range split {
@@ -263,9 +170,9 @@ func runoff(s *discordgo.Session, message *discordgo.MessageCreate) {
 	}
 }
 
-func runoffRes(s *discordgo.Session, message *discordgo.MessageCreate) string {
+func runoffRes(poll Poll, s *discordgo.Session, message *discordgo.MessageCreate) string {
 	if runoffMessageByChannel[message.ChannelID] != nil {
-		return getResultHelper(s, message, runoffMessageByChannel[message.ChannelID])
+		return getResultHelper(poll, s)
 	}
 	return ""
 }
