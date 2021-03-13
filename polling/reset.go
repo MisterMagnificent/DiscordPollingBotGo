@@ -1,7 +1,7 @@
 package polling
 
 import (
-	"../config"
+	"github.com/MisterMagnificient/DiscordPollingBotGo/config"
 	"github.com/bwmarrin/discordgo"
 	"strings"
 )
