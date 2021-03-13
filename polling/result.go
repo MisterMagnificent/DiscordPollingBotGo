@@ -24,7 +24,7 @@ func getResultHelper(poll Poll, session *discordgo.Session) string {
 		}
 	}
 
-	result = appendNamesToEmotes(poll, emote)
+	var result = appendNamesToEmotes(poll, emote)
 	return result
 }
 
@@ -35,4 +35,5 @@ func appendNamesToEmotes(poll Poll, emoteList []string) string {
 		entry = poll.entries[emoteList[i]]
 		result = result + ", " + entry + " (" + poll.entriesReverse[entry] + ")"
 	}
+	return result
 }
