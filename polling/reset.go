@@ -1,6 +1,7 @@
 package polling
 
 import (
+	"../config"
 	"github.com/bwmarrin/discordgo"
 	"strings"
 )
@@ -18,10 +19,15 @@ func resetCarryOver(poll Poll, session *discordgo.Session, message *discordgo.Me
 
 	removeOptionHelper(&(poll), session, won, false)
 
+	var oldMessageId = poll.pollMessage.ID
 	var newMessage string = "Poll reset.  New poll with carryover has begun:"
 	poll.pollMessage, _ = session.ChannelMessageSend(poll.channel, newMessage)
+
 	for key, val := range poll.entries {
-		if poll.entries[val] == "" {
+		var users, _ = session.MessageReactions(poll.channel, oldMessageId, val, 100, "", "")
+		var size = len(users)
+
+		if poll.entries[val] == "" && size > config.MinCarryOver {
 			poll.pollMessage.Content = poll.pollMessage.Content + "\n" + val + ": " + key + "\n"
 			_, _ = session.ChannelMessageEdit(poll.channel, poll.pollMessage.ID, poll.pollMessage.Content)
 			go session.MessageReactionAdd(poll.channel, poll.pollMessage.ID, key)
@@ -34,14 +40,5 @@ func resetCarryOver(poll Poll, session *discordgo.Session, message *discordgo.Me
 
 func reset(poll Poll, session *discordgo.Session, message *discordgo.MessageCreate) Poll {
 	unpin(poll, session)
-	poll.lastLetter = 0
-	poll.entries = copyMap(entries)
-	poll.entriesReverse = copyMap(entries)
-	poll.emotes = copyIntMap(emotes)
-	poll.runoffMessage = nil
-
-	poll.pollMessage, _ = session.ChannelMessageSend(poll.channel, "Poll reset.  New poll has begun:")
-
-	pin(poll, session)
-	return poll
+	return start(session, message)
 }

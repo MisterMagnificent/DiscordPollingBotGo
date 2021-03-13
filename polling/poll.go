@@ -1,7 +1,9 @@
 package polling
 
 import (
+	"../config"
 	"github.com/bwmarrin/discordgo"
+	"strings"
 )
 
 type Poll struct {
@@ -16,53 +18,16 @@ type Poll struct {
 	isMovie        bool
 }
 
-var emotes map[int]string = map[int]string{
-	0:  "🇦",
-	1:  "🇧",
-	2:  "🇨",
-	3:  "🇩",
-	4:  "🇪",
-	5:  "🇫",
-	6:  "🇬",
-	7:  "🇭",
-	8:  "🇮",
-	9:  "🇯",
-	10: "🇰",
-	11: "🇱",
-	12: "🇲",
-	13: "🇳",
-	14: "🇴",
-	15: "🇵",
-	16: "🇶",
-	17: "🇷",
-	18: "🇸",
-	19: "🇹",
-}
-var entries map[string]string = map[string]string{
-	"🇦": "🇦",
-	"🇧": "🇧",
-	"🇨": "🇨",
-	"🇩": "🇩",
-	"🇪": "🇪",
-	"🇫": "🇫",
-	"🇬": "🇬",
-	"🇭": "🇭",
-	"🇮": "🇮",
-	"🇯": "🇯",
-	"🇰": "🇰",
-	"🇱": "🇱",
-	"🇲": "🇲",
-	"🇳": "🇳",
-	"🇴": "🇴",
-	"🇵": "🇵",
-	"🇶": "🇶",
-	"🇷": "🇷",
-	"🇸": "🇸",
-	"🇹": "🇹",
-}
-
 func New() Poll {
-	poll := Poll{lastLetter: 0, emotes: copyIntMap(emotes), entries: copyMap(entries), entriesReverse: map[string]string{}}
+	var emotes map[int]string = map[int]string{}
+	var entries map[string]string = map[string]string{}
+	var emoteList = strings.Split(config.Emotes, ",")
+	for index, element := range emoteList {
+		emotes[index] = element
+		entries[element] = element
+	}
+
+	poll := Poll{lastLetter: 0, emotes: emotes, entries: entries, entriesReverse: map[string]string{}}
 	//create emotes
 	return poll
 }

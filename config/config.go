@@ -7,15 +7,19 @@ import (
 )
 
 var (
-	Token     string
-	BotPrefix string
+	Token        string
+	BotPrefix    string
+	MinCarryOver int
+	Emotes       string
 
 	config *configStruct
 )
 
 type configStruct struct {
-	Token     string `json:"Token"`
-	BotPrefix string `json:"BotPrefix"`
+	Token        string `json:"Token"`
+	BotPrefix    string `json:"BotPrefix"`
+	MinCarryOver int    `json:"MinCarryOver"`
+	Emotes       string `json:"Emotes"`
 }
 
 func ReadConfig() error {
@@ -39,6 +43,8 @@ func ReadConfig() error {
 
 	Token = config.Token
 	BotPrefix = config.BotPrefix
+	MinCarryOver = config.MinCarryOver
+	Emotes = config.Emotes
 
 	return nil
 }
