@@ -1,10 +1,11 @@
 package polling
 
 import (
-	"../config"
 	"fmt"
-	"github.com/bwmarrin/discordgo"
 	"strings"
+
+	"github.com/MisterMagnificient/DiscordPollingBotGo/config"
+	"github.com/bwmarrin/discordgo"
 )
 
 var BotID string
