@@ -1,9 +1,10 @@
 package main
 
 import (
-	"./config"
-	"./polling"
 	"fmt"
+
+	"github.com/MisterMagnificient/DiscordPollingBotGo/config"
+	"github.com/MisterMagnificient/DiscordPollingBotGo/polling"
 )
 
 func main() {
