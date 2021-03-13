@@ -98,5 +98,7 @@ func messageHandler(session *discordgo.Session, message *discordgo.MessageCreate
 			var res = runoffRes(poll, session)
 			_, _ = session.ChannelMessageSend(message.ChannelID, res)
 		}
+
+		session.ChannelMessageDelete(message.ChannelID, message.ID)
 	}
 }
