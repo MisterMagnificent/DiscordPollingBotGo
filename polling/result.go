@@ -2,6 +2,7 @@ package polling
 
 import (
 	"github.com/bwmarrin/discordgo"
+	"strings"
 )
 
 func getResult(poll Poll, session *discordgo.Session) string {
@@ -29,11 +30,19 @@ func getResultHelper(poll Poll, session *discordgo.Session) string {
 }
 
 func appendNamesToEmotes(poll Poll, emoteList []string) string {
-	var entry = poll.entries[emoteList[0]]
-	var result = entry + " (" + poll.entriesReverse[entry] + ")"
-	for i := 1; i < len(emoteList); i++ {
-		entry = poll.entries[emoteList[i]]
-		result = result + ", " + entry + " (" + poll.entriesReverse[entry] + ")"
+	var result = ""
+	for i := 0; i < len(emoteList); i++ {
+		var entry = poll.entries[emoteList[i]]
+		var item = poll.entriesReverse[entry]
+		if i > 0 {
+			result = result + ", "
+		}
+		result = result + entry + " (" + item
+
+		if poll.isMovie {
+			result = result + " : https://www.justwatch.com/us/movie/" + strings.ReplaceAll(entry, " ", "-")
+		}
+		result = result + ")"
 	}
 	return result
 }

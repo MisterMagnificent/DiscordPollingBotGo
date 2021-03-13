@@ -7,6 +7,7 @@ import (
 
 //remove the winner
 func resetCarryOver(poll Poll, session *discordgo.Session, message *discordgo.MessageCreate, winner string) Poll {
+	unpin(poll, session)
 	var won string = winner
 	if winner == "" {
 		//find winner
@@ -15,16 +16,7 @@ func resetCarryOver(poll Poll, session *discordgo.Session, message *discordgo.Me
 		won = splitRes[0]
 	}
 
-	poll.lastLetter--
-	var lastLetterLookup = poll.lastLetter
-	var emoteKey string = poll.entriesReverse[won]
-	var lastLetter string = poll.emotes[lastLetterLookup]
-	var newWord string = poll.entries[lastLetter]
-
-	poll.entries[emoteKey] = newWord
-	poll.entries[lastLetter] = lastLetter
-	poll.entriesReverse[newWord] = emoteKey
-	delete(poll.entriesReverse, won)
+	removeOptionHelper(&(poll), session, won, false)
 
 	var newMessage string = "Poll reset.  New poll with carryover has begun:"
 	poll.pollMessage, _ = session.ChannelMessageSend(poll.channel, newMessage)
@@ -36,18 +28,20 @@ func resetCarryOver(poll Poll, session *discordgo.Session, message *discordgo.Me
 		}
 	}
 	//Pin
-	pin(poll, session, message)
+	pin(poll, session)
 	return poll
 }
 
 func reset(poll Poll, session *discordgo.Session, message *discordgo.MessageCreate) Poll {
+	unpin(poll, session)
 	poll.lastLetter = 0
 	poll.entries = copyMap(entries)
 	poll.entriesReverse = copyMap(entries)
+	poll.emotes = copyIntMap(emotes)
 	poll.runoffMessage = nil
 
 	poll.pollMessage, _ = session.ChannelMessageSend(poll.channel, "Poll reset.  New poll has begun:")
 
-	pin(poll, session, message)
+	pin(poll, session)
 	return poll
 }

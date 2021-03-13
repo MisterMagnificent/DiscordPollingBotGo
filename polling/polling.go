@@ -58,11 +58,22 @@ func messageHandler(session *discordgo.Session, message *discordgo.MessageCreate
 			pollByChannel[message.ChannelID] = temp
 		}
 
-		if message.Content == config.BotPrefix+"repin" {
-			pin(pollByChannel[message.ChannelID], session, message)
+		if strings.HasPrefix(message.Content, config.BotPrefix+"remove:") {
+			//Doesn't let you pass an address for some god forsaken reason, so temp variable workaround
+			temp := pollByChannel[message.ChannelID]
+			removeOption(&(temp), session, message)
+			pollByChannel[message.ChannelID] = temp
 		}
 
-		if message.Content == config.BotPrefix+"help" {
+		if message.Content == config.BotPrefix+"repin" {
+			pin(pollByChannel[message.ChannelID], session)
+		}
+
+		if message.Content == config.BotPrefix+"view" {
+			view(pollByChannel[message.ChannelID], session)
+		}
+
+		if message.Content == config.BotPrefix+"help" || message.Content == config.BotPrefix+"elp" {
 			help(session, message)
 		}
 
@@ -70,8 +81,6 @@ func messageHandler(session *discordgo.Session, message *discordgo.MessageCreate
 			var poll = pollByChannel[message.ChannelID]
 			var res = getResult(poll, session)
 			_, _ = session.ChannelMessageSend(poll.channel, res)
-			//unpin
-			unpin(poll, session, message)
 		}
 
 		if strings.HasPrefix(message.Content, config.BotPrefix+"reset") {

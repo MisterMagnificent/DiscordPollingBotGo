@@ -4,16 +4,17 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-type Poll struct { 
-    channel string
-    question string
-    pollMessage *discordgo.Message
-    runoffMessage *discordgo.Message
-    lastLetter int
-    emotes map[int]string
-    entries map[string]string
-    entriesReverse map[string]string
-} 
+type Poll struct {
+	channel        string
+	question       string
+	pollMessage    *discordgo.Message
+	runoffMessage  *discordgo.Message
+	lastLetter     int
+	emotes         map[int]string
+	entries        map[string]string
+	entriesReverse map[string]string
+	isMovie        bool
+}
 
 var emotes map[int]string = map[int]string{
 	0:  "🇦",
@@ -36,12 +37,6 @@ var emotes map[int]string = map[int]string{
 	17: "🇷",
 	18: "🇸",
 	19: "🇹",
-	20: "🇺",
-	21: "🇻",
-	22: "🇼",
-	23: "🇽",
-	24: "🇾",
-	25: "🇿",
 }
 var entries map[string]string = map[string]string{
 	"🇦": "🇦",
@@ -64,18 +59,12 @@ var entries map[string]string = map[string]string{
 	"🇷": "🇷",
 	"🇸": "🇸",
 	"🇹": "🇹",
-	"🇺": "🇺",
-	"🇻": "🇻",
-	"🇼": "🇼",
-	"🇽": "🇽",
-	"🇾": "🇾",
-	"🇿": "🇿",
 }
 
 func New() Poll {
-    poll := Poll{lastLetter: 0, emotes: copyIntMap(emotes), entries: copyMap(entries), entriesReverse: copyMap(entries)}
-    //create emotes
-    return poll
+	poll := Poll{lastLetter: 0, emotes: copyIntMap(emotes), entries: copyMap(entries), entriesReverse: map[string]string{}}
+	//create emotes
+	return poll
 }
 
 func copyMap(m map[string]string) map[string]string {
