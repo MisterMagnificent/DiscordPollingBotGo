@@ -60,6 +60,18 @@ func messageHandler(session *discordgo.Session, message *discordgo.MessageCreate
 			addOption(&(temp), session, message)
 			pollByChannel[message.ChannelID] = temp
 
+		} else if messCont == config.BotPrefix+"bad" {
+
+			bad(session, message)
+
+		} else if messCont == config.BotPrefix+"girl" {
+
+			girl(session, message)
+
+		} else if messCont == config.BotPrefix+"help" || messCont == config.BotPrefix+"elp" {
+
+			help(session, message)
+
 		} else if strings.HasPrefix(messCont, config.BotPrefix+"remove:") {
 
 			//Doesn't let you pass an address for some god forsaken reason, so temp variable workaround
@@ -71,19 +83,9 @@ func messageHandler(session *discordgo.Session, message *discordgo.MessageCreate
 
 			pin(pollByChannel[message.ChannelID], session)
 
-		} else if messCont == config.BotPrefix+"view" {
+		} else if strings.HasPrefix(messCont, config.BotPrefix+"request:") {
 
-			view(pollByChannel[message.ChannelID], session)
-
-		} else if messCont == config.BotPrefix+"help" || messCont == config.BotPrefix+"elp" {
-
-			help(session, message)
-
-		} else if strings.HasPrefix(messCont, config.BotPrefix+"result") {
-
-			var poll = pollByChannel[message.ChannelID]
-			var res = getResult(poll, session)
-			_, _ = session.ChannelMessageSend(poll.channel, res)
+			addFeature(session, message)
 
 		} else if strings.HasPrefix(messCont, config.BotPrefix+"reset") {
 
@@ -99,9 +101,11 @@ func messageHandler(session *discordgo.Session, message *discordgo.MessageCreate
 			}
 			pollByChannel[message.ChannelID] = newPoll
 
-		} else if messCont == config.BotPrefix+"bad" {
+		} else if strings.HasPrefix(messCont, config.BotPrefix+"result") {
 
-			bad(session, message)
+			var poll = pollByChannel[message.ChannelID]
+			var res = getResult(poll, session)
+			_, _ = session.ChannelMessageSend(poll.channel, res)
 
 		} else if messCont == config.BotPrefix+"runoff" {
 
@@ -113,6 +117,10 @@ func messageHandler(session *discordgo.Session, message *discordgo.MessageCreate
 			var poll = pollByChannel[message.ChannelID]
 			var res = runoffRes(poll, session)
 			_, _ = session.ChannelMessageSend(message.ChannelID, res)
+
+		} else if messCont == config.BotPrefix+"view" {
+
+			view(pollByChannel[message.ChannelID], session)
 
 		} else {
 			return
