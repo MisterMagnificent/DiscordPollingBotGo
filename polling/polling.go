@@ -98,6 +98,10 @@ func messageHandler(session *discordgo.Session, message *discordgo.MessageCreate
 			pollByChannel[message.ChannelID] = newPoll
 		}
 
+		if message.Content == config.BotPrefix+"bad" {
+			bad(session, message)
+		}
+
 		if message.Content == config.BotPrefix+"runoff" {
 			var poll = pollByChannel[message.ChannelID]
 			runoff(poll, session, message)
