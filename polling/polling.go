@@ -64,7 +64,7 @@ func messageHandler(session *discordgo.Session, message *discordgo.MessageCreate
 
 			bad(session, message)
 
-		} else if strings.HasPrefix(messCont, config.BotPrefix+"getRequests") {
+		} else if strings.HasPrefix(messCont, config.BotPrefix+"getrequests") {
 
 			getFeatureList(session, message)
 
