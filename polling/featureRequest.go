@@ -15,3 +15,7 @@ func addFeature(session *discordgo.Session, message *discordgo.MessageCreate) {
 		_, _ = session.ChannelMessageSend(message.ChannelID, "Feature request noted, thank you")
 	}
 }
+
+func getFeatureList(session *discordgo.Session, message *discordgo.MessageCreate) {
+	_, _ = session.ChannelMessageSend(message.ChannelID, "Features currently requested: \n"+strings.Join(featureRequestList, "\n"))
+}

@@ -64,6 +64,10 @@ func messageHandler(session *discordgo.Session, message *discordgo.MessageCreate
 
 			bad(session, message)
 
+		} else if strings.HasPrefix(messCont, config.BotPrefix+"getRequests") {
+
+			getFeatureList(session, message)
+
 		} else if messCont == config.BotPrefix+"girl" {
 
 			girl(session, message)
