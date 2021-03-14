@@ -42,53 +42,53 @@ func Start() {
 }
 
 func messageHandler(session *discordgo.Session, message *discordgo.MessageCreate) {
-
-	if strings.HasPrefix(message.Content, config.BotPrefix) {
+	var messCont = strings.ToLower(message.Content)
+	if strings.HasPrefix(messCont, config.BotPrefix) {
 		if message.Author.ID == BotID {
 			return
 		}
 
-		if strings.HasPrefix(message.Content, config.BotPrefix+"start") {
+		if strings.HasPrefix(messCont, config.BotPrefix+"start") {
 
 			pollByChannel[message.ChannelID] = start(session, message)
 
-		} else if strings.HasPrefix(message.Content, config.BotPrefix+"add:") {
+		} else if strings.HasPrefix(messCont, config.BotPrefix+"add:") {
 
 			//Doesn't let you pass an address for some god forsaken reason, so temp variable workaround
 			temp := pollByChannel[message.ChannelID]
 			addOption(&(temp), session, message)
 			pollByChannel[message.ChannelID] = temp
 
-		} else if strings.HasPrefix(message.Content, config.BotPrefix+"remove:") {
+		} else if strings.HasPrefix(messCont, config.BotPrefix+"remove:") {
 
 			//Doesn't let you pass an address for some god forsaken reason, so temp variable workaround
 			temp := pollByChannel[message.ChannelID]
 			removeOption(&(temp), session, message)
 			pollByChannel[message.ChannelID] = temp
 
-		} else if message.Content == config.BotPrefix+"repin" {
+		} else if messCont == config.BotPrefix+"repin" {
 
 			pin(pollByChannel[message.ChannelID], session)
 
-		} else if message.Content == config.BotPrefix+"view" {
+		} else if messCont == config.BotPrefix+"view" {
 
 			view(pollByChannel[message.ChannelID], session)
 
-		} else if message.Content == config.BotPrefix+"help" || message.Content == config.BotPrefix+"elp" {
+		} else if messCont == config.BotPrefix+"help" || messCont == config.BotPrefix+"elp" {
 
 			help(session, message)
 
-		} else if strings.HasPrefix(message.Content, config.BotPrefix+"result") {
+		} else if strings.HasPrefix(messCont, config.BotPrefix+"result") {
 
 			var poll = pollByChannel[message.ChannelID]
 			var res = getResult(poll, session)
 			_, _ = session.ChannelMessageSend(poll.channel, res)
 
-		} else if strings.HasPrefix(message.Content, config.BotPrefix+"reset") {
+		} else if strings.HasPrefix(messCont, config.BotPrefix+"reset") {
 
 			var poll = pollByChannel[message.ChannelID]
 			var newPoll = poll
-			var split = strings.Split(message.Content, " ")
+			var split = strings.Split(messCont, " ")
 			if poll.entries == nil || (len(split) > 1 && split[1] == "all") {
 				newPoll = reset(poll, session, message)
 			} else if len(split) == 1 {
@@ -98,16 +98,16 @@ func messageHandler(session *discordgo.Session, message *discordgo.MessageCreate
 			}
 			pollByChannel[message.ChannelID] = newPoll
 
-		} else if message.Content == config.BotPrefix+"bad" {
+		} else if messCont == config.BotPrefix+"bad" {
 
 			bad(session, message)
 
-		} else if message.Content == config.BotPrefix+"runoff" {
+		} else if messCont == config.BotPrefix+"runoff" {
 
 			var poll = pollByChannel[message.ChannelID]
 			runoff(poll, session, message)
 
-		} else if message.Content == config.BotPrefix+"runoffResult" {
+		} else if messCont == config.BotPrefix+"runoffResult" {
 
 			var poll = pollByChannel[message.ChannelID]
 			var res = runoffRes(poll, session)
