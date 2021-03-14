@@ -33,6 +33,7 @@ func Start() {
 
 	err = goBot.Open()
 
+	goBot.UpdateListeningStatus(config.BotPrefix + " for any commands")
 	if err != nil {
 		fmt.Println(err.Error())
 		return
