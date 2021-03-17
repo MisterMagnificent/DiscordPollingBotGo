@@ -12,7 +12,7 @@ func addFeature(session *discordgo.Session, message *discordgo.MessageCreate) {
 
 	if len(split) > 1 {
 		featureRequestList = append(featureRequestList, split[1])
-		_, _ = session.ChannelMessageSend(message.ChannelID, "Feature request noted, thank you")
+		_, _ = session.ChannelMessageSend(message.ChannelID, "Feature request of '"+split[1]+"' noted, thank you")
 	}
 }
 

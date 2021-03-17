@@ -34,12 +34,22 @@ func Start() {
 	err = goBot.Open()
 
 	goBot.UpdateListeningStatus(config.BotPrefix + " for any commands")
+
+	setup(&pollByChannel)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}
 
 	fmt.Println("Bot is running!")
+}
+
+func Cleanup() {
+	fmt.Println("Cleanup called!")
+	shutdown(goBot, pollByChannel)
+	fmt.Println("Bot about to turn off!")
+	goBot.Close()
+	fmt.Println("Bot is turning off!")
 }
 
 func messageHandler(session *discordgo.Session, message *discordgo.MessageCreate) {
@@ -121,6 +131,12 @@ func messageHandler(session *discordgo.Session, message *discordgo.MessageCreate
 			var poll = pollByChannel[message.ChannelID]
 			var res = runoffRes(poll, session)
 			_, _ = session.ChannelMessageSend(message.ChannelID, res)
+
+		} else if messCont == config.BotPrefix+"shutdown" {
+			if message.Author.ID == config.AdminID {
+				session.ChannelMessageDelete(message.ChannelID, message.ID)
+				forceShutdown(session, pollByChannel)
+			}
 
 		} else if messCont == config.BotPrefix+"view" {
 

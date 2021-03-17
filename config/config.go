@@ -11,6 +11,7 @@ var (
 	BotPrefix    string
 	MinCarryOver int
 	Emotes       string
+	AdminID      string
 
 	config *configStruct
 )
@@ -20,6 +21,7 @@ type configStruct struct {
 	BotPrefix    string `json:"BotPrefix"`
 	MinCarryOver int    `json:"MinCarryOver"`
 	Emotes       string `json:"Emotes"`
+	AdminID      string `json:"AdminID"`
 }
 
 func ReadConfig() error {
@@ -45,6 +47,7 @@ func ReadConfig() error {
 	BotPrefix = config.BotPrefix
 	MinCarryOver = config.MinCarryOver
 	Emotes = config.Emotes
+	AdminID = config.AdminID
 
 	return nil
 }
