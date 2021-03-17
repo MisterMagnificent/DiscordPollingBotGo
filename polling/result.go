@@ -12,8 +12,8 @@ func getResult(poll Poll, session *discordgo.Session) string {
 func getResultHelper(poll Poll, session *discordgo.Session) string {
 	var biggest int = 0
 	var emote []string
-	for key, _ := range poll.entries {
-		var users, _ = session.MessageReactions(poll.channel, poll.pollMessage.ID, key, 100, "", "")
+	for key, _ := range poll.Entries {
+		var users, _ = session.MessageReactions(poll.Channel, poll.PollMessage.ID, key, 100, "", "")
 		var size = len(users)
 		if size >= biggest {
 			if size > biggest {
@@ -32,14 +32,14 @@ func getResultHelper(poll Poll, session *discordgo.Session) string {
 func appendNamesToEmotes(poll Poll, emoteList []string) string {
 	var result = ""
 	for i := 0; i < len(emoteList); i++ {
-		var entry = poll.entries[emoteList[i]]
-		var item = poll.entriesReverse[entry]
+		var entry = poll.Entries[emoteList[i]]
+		var item = poll.EntriesReverse[entry]
 		if i > 0 {
 			result = result + ", "
 		}
 		result = result + entry + " (" + item
 
-		if poll.isMovie {
+		if poll.IsMovie {
 			result = result + " : https://www.justwatch.com/us/movie/" + strings.ReplaceAll(entry, " ", "-")
 		}
 		result = result + ")"

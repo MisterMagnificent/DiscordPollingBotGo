@@ -5,9 +5,9 @@ import (
 )
 
 func pin(poll Poll, session *discordgo.Session) {
-	session.ChannelMessagePin(poll.channel, poll.pollMessage.ID)
+	session.ChannelMessagePin(poll.Channel, poll.PollMessage.ID)
 }
 
 func unpin(poll Poll, session *discordgo.Session) {
-	session.ChannelMessageUnpin(poll.channel, poll.pollMessage.ID)
+	session.ChannelMessageUnpin(poll.Channel, poll.PollMessage.ID)
 }

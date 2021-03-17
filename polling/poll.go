@@ -7,15 +7,15 @@ import (
 )
 
 type Poll struct {
-	channel        string
-	question       string
-	pollMessage    *discordgo.Message
-	runoffMessage  *discordgo.Message
-	lastLetter     int
-	emotes         map[int]string
-	entries        map[string]string
-	entriesReverse map[string]string
-	isMovie        bool
+	Channel        string
+	Question       string
+	PollMessage    *discordgo.Message
+	RunoffMessage  *discordgo.Message
+	LastLetter     int
+	Emotes         map[int]string
+	Entries        map[string]string
+	EntriesReverse map[string]string
+	IsMovie        bool
 }
 
 func New() Poll {
@@ -27,7 +27,7 @@ func New() Poll {
 		entries[element] = element
 	}
 
-	poll := Poll{lastLetter: 0, emotes: emotes, entries: entries, entriesReverse: map[string]string{}}
+	poll := Poll{LastLetter: 0, Emotes: emotes, Entries: entries, EntriesReverse: map[string]string{}}
 	//create emotes
 	return poll
 }

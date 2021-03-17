@@ -106,7 +106,7 @@ func messageHandler(session *discordgo.Session, message *discordgo.MessageCreate
 			var poll = pollByChannel[message.ChannelID]
 			var newPoll = poll
 			var split = strings.Split(messCont, " ")
-			if poll.entries == nil || (len(split) > 1 && split[1] == "all") {
+			if poll.Entries == nil || (len(split) > 1 && split[1] == "all") {
 				newPoll = reset(poll, session, message)
 			} else if len(split) == 1 {
 				newPoll = resetCarryOver(poll, session, message, "")
@@ -119,7 +119,7 @@ func messageHandler(session *discordgo.Session, message *discordgo.MessageCreate
 
 			var poll = pollByChannel[message.ChannelID]
 			var res = getResult(poll, session)
-			_, _ = session.ChannelMessageSend(poll.channel, res)
+			_, _ = session.ChannelMessageSend(poll.Channel, res)
 
 		} else if messCont == config.BotPrefix+"runoff" {
 

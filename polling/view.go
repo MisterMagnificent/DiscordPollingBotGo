@@ -5,7 +5,7 @@ import (
 )
 
 func view(poll Poll, session *discordgo.Session) {
-	if poll.pollMessage != nil {
-		session.ChannelMessageSendReply(poll.channel, "Here's the poll ^", poll.pollMessage.Reference())
+	if poll.PollMessage != nil {
+		session.ChannelMessageSendReply(poll.Channel, "Here's the poll ^", poll.PollMessage.Reference())
 	}
 }

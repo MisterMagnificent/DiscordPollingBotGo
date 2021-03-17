@@ -19,18 +19,18 @@ func resetCarryOver(poll Poll, session *discordgo.Session, message *discordgo.Me
 
 	removeOptionHelper(&(poll), session, won, false)
 
-	var oldMessageId = poll.pollMessage.ID
+	var oldMessageId = poll.PollMessage.ID
 	var newMessage string = "Poll reset.  New poll with carryover has begun:"
-	poll.pollMessage, _ = session.ChannelMessageSend(poll.channel, newMessage)
+	poll.PollMessage, _ = session.ChannelMessageSend(poll.Channel, newMessage)
 
-	for key, val := range poll.entries {
-		var users, _ = session.MessageReactions(poll.channel, oldMessageId, val, 100, "", "")
+	for key, val := range poll.Entries {
+		var users, _ = session.MessageReactions(poll.Channel, oldMessageId, val, 100, "", "")
 		var size = len(users)
 
-		if poll.entries[val] == "" && size > config.MinCarryOver {
-			poll.pollMessage.Content = poll.pollMessage.Content + "\n" + val + ": " + key + "\n"
-			_, _ = session.ChannelMessageEdit(poll.channel, poll.pollMessage.ID, poll.pollMessage.Content)
-			go session.MessageReactionAdd(poll.channel, poll.pollMessage.ID, key)
+		if poll.Entries[val] == "" && size > config.MinCarryOver {
+			poll.PollMessage.Content = poll.PollMessage.Content + "\n" + val + ": " + key + "\n"
+			_, _ = session.ChannelMessageEdit(poll.Channel, poll.PollMessage.ID, poll.PollMessage.Content)
+			go session.MessageReactionAdd(poll.Channel, poll.PollMessage.ID, key)
 		}
 	}
 	//Pin

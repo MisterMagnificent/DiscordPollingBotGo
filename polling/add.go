@@ -16,13 +16,13 @@ func addOption(poll *Poll, session *discordgo.Session, message *discordgo.Messag
 }
 
 func addHelper(poll *Poll, session *discordgo.Session, message *discordgo.MessageCreate, element string) {
-	var emote string = (*poll).emotes[poll.lastLetter] //Pull from dictionary
-	(*poll).lastLetter++
+	var emote string = (*poll).Emotes[poll.LastLetter] //Pull from dictionary
+	(*poll).LastLetter++
 
-	(*poll).entries[emote] = element
-	(*poll).entriesReverse[element] = emote
-	(*poll).pollMessage.Content = (*poll).pollMessage.Content + "\n" + element + ": " + emote + "\n"
+	(*poll).Entries[emote] = element
+	(*poll).EntriesReverse[element] = emote
+	(*poll).PollMessage.Content = (*poll).PollMessage.Content + "\n" + element + ": " + emote + "\n"
 
-	_, _ = session.ChannelMessageEdit(message.ChannelID, (*poll).pollMessage.ID, (*poll).pollMessage.Content)
-	go session.MessageReactionAdd(message.ChannelID, (*poll).pollMessage.ID, emote)
+	_, _ = session.ChannelMessageEdit(message.ChannelID, (*poll).PollMessage.ID, (*poll).PollMessage.Content)
+	go session.MessageReactionAdd(message.ChannelID, (*poll).PollMessage.ID, emote)
 }

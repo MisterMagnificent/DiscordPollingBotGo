@@ -17,15 +17,15 @@ func runoff(poll Poll, session *discordgo.Session, message *discordgo.MessageCre
 		messageOutput += key + "\n"
 	}
 	//for each result, add one
-	poll.runoffMessage, _ = session.ChannelMessageSend(poll.channel, messageOutput)
+	poll.RunoffMessage, _ = session.ChannelMessageSend(poll.Channel, messageOutput)
 
 	for _, emote := range emotes {
-		go session.MessageReactionAdd(poll.channel, poll.runoffMessage.ID, emote)
+		go session.MessageReactionAdd(poll.Channel, poll.RunoffMessage.ID, emote)
 	}
 }
 
 func runoffRes(poll Poll, session *discordgo.Session) string {
-	if poll.runoffMessage != nil {
+	if poll.RunoffMessage != nil {
 		return getResultHelper(poll, session)
 	}
 	return ""
