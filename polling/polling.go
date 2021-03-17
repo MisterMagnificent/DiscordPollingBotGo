@@ -61,7 +61,7 @@ func messageHandler(session *discordgo.Session, message *discordgo.MessageCreate
 
 		if strings.HasPrefix(messCont, config.BotPrefix+"start") {
 
-			pollByChannel[message.ChannelID] = start(session, message)
+			pollByChannel[message.ChannelID] = start(session, message, pollByChannel)
 
 		} else if strings.HasPrefix(messCont, config.BotPrefix+"add:") {
 
@@ -107,7 +107,7 @@ func messageHandler(session *discordgo.Session, message *discordgo.MessageCreate
 			var newPoll = poll
 			var split = strings.Split(messCont, " ")
 			if poll.Entries == nil || (len(split) > 1 && split[1] == "all") {
-				newPoll = reset(poll, session, message)
+				newPoll = reset(pollByChannel, session, message)
 			} else if len(split) == 1 {
 				newPoll = resetCarryOver(poll, session, message, "")
 			} else {

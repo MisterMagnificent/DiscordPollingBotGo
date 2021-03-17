@@ -38,7 +38,6 @@ func resetCarryOver(poll Poll, session *discordgo.Session, message *discordgo.Me
 	return poll
 }
 
-func reset(poll Poll, session *discordgo.Session, message *discordgo.MessageCreate) Poll {
-	unpin(poll, session)
-	return start(session, message)
+func reset(pollByChannel map[string]Poll, session *discordgo.Session, message *discordgo.MessageCreate) Poll {
+	return start(session, message, pollByChannel)
 }

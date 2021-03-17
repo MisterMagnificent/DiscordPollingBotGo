@@ -5,11 +5,15 @@ import (
 	"strings"
 )
 
-func start(session *discordgo.Session, message *discordgo.MessageCreate) Poll {
+func start(session *discordgo.Session, message *discordgo.MessageCreate, pollByChannel map[string]Poll) Poll {
 	var channel = message.ChannelID
 
 	var poll Poll = New()
 	poll.Channel = channel
+
+	if val, ok := pollByChannel[poll.Channel]; ok {
+		unpin(val, session)
+	}
 
 	var questionMessage = "Which one"
 	var command = strings.Split(message.Content, ":")
