@@ -11,7 +11,7 @@ func addOption(poll *Poll, session *discordgo.Session, channelID string, content
 	option := string(chars[index+1:])
 
 	if option != "" {
-		var split = strings.Split(option, "&")
+		var split = strings.Split(option, ";")
 
 		if len(split) > 0 {
 			for index := 0; index < len(split); index++ {

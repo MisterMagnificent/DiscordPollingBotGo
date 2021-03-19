@@ -1,6 +1,7 @@
 package polling
 
 import (
+	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"strconv"
 	"strings"
@@ -16,12 +17,14 @@ func schedule(session *discordgo.Session, channelID string, content string) {
 
 		if len(split) > 2 {
 			weekday, err := strconv.Atoi(split[0])
-			if err != nil {
+			if err == nil {
 				hour, err := strconv.Atoi(split[1])
-				if err != nil {
+				if err == nil {
 					minute, err := strconv.Atoi(split[2])
-					if err != nil {
-						(*ourScheduler).Every().Weekday(weekday).Hour(hour).Minute(minute).Do(view, pollByChannel[channelID], session)
+					if err == nil {
+						fmt.Println("Scheduled: %s", split)
+						(*ourScheduler).Every().Weekday(weekday).Hour(hour).Minute(minute).Second(0).Do(view, pollByChannel[channelID], session)
+						_, _ = session.ChannelMessageSend(channelID, "A view is scheduled for weekday: "+split[0]+", hour: "+split[1]+" (UTC), and minute: "+split[2]+"; once a week")
 					}
 				}
 			}

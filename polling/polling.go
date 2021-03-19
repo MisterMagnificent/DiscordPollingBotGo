@@ -60,7 +60,11 @@ func Cleanup() {
 }
 
 func updateHandler(session *discordgo.Session, message *discordgo.MessageUpdate) {
-	parseCommand(session, message.Message.ID, message.Message.Content, message.Message.ChannelID, message.Message.Author.ID)
+	if message.Message != nil && message.Message.Author != nil {
+		parseCommand(session, message.Message.ID, message.Message.Content, message.Message.ChannelID, message.Message.Author.ID)
+	} else {
+		fmt.Println("Issues with this message: %s", message.Message)
+	}
 }
 
 func messageHandler(session *discordgo.Session, message *discordgo.MessageCreate) {
@@ -147,7 +151,7 @@ func parseCommand(session *discordgo.Session, id string, content string, channel
 			var res = runoffRes(poll, session)
 			_, _ = session.ChannelMessageSend(channelID, res)
 
-		} else if messCont == config.BotPrefix+"schedule" {
+		} else if strings.HasPrefix(messCont, config.BotPrefix+"schedule") {
 			schedule(session, channelID, content)
 		} else if messCont == config.BotPrefix+"shutdown" {
 			if authorID == config.AdminID {
