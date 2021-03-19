@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-func runoff(poll Poll, session *discordgo.Session, message *discordgo.MessageCreate) {
+func runoff(poll Poll, session *discordgo.Session) {
 	var split []string = strings.Split(getResult(poll, session), ", ")
 	var messageOutput string = "Runoff poll:\n"
 	var emotes []string

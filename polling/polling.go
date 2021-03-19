@@ -6,22 +6,31 @@ import (
 
 	"github.com/MisterMagnificient/DiscordPollingBotGo/config"
 	"github.com/bwmarrin/discordgo"
+	"github.com/prprprus/scheduler"
 )
 
 var BotID string
-var goBot *discordgo.Session
+var goBot **discordgo.Session
+var ourScheduler **scheduler.Scheduler
 
 var pollByChannel map[string]Poll = make(map[string]Poll)
 
 func Start() {
-	goBot, err := discordgo.New("Bot " + config.Token)
-
+	bot, err := discordgo.New("Bot " + config.Token)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}
+	goBot = &bot
 
-	u, err := goBot.User("@me")
+	tempSched, err := scheduler.NewScheduler(1000)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	ourScheduler = &tempSched
+
+	u, err := bot.User("@me")
 
 	if err != nil {
 		fmt.Println(err.Error())
@@ -29,11 +38,12 @@ func Start() {
 
 	BotID = u.ID
 
-	goBot.AddHandler(messageHandler)
+	bot.AddHandler(messageHandler)
+	bot.AddHandler(updateHandler)
 
-	err = goBot.Open()
+	err = bot.Open()
 
-	goBot.UpdateListeningStatus(config.BotPrefix + " for any commands")
+	bot.UpdateListeningStatus(config.BotPrefix + " for any commands")
 
 	setup(&pollByChannel)
 	if err != nil {
@@ -46,106 +56,112 @@ func Start() {
 
 func Cleanup() {
 	fmt.Println("Cleanup called!")
-	shutdown(goBot, pollByChannel)
-	fmt.Println("Bot about to turn off!")
-	goBot.Close()
-	fmt.Println("Bot is turning off!")
+	shutdown(*goBot, pollByChannel)
+}
+
+func updateHandler(session *discordgo.Session, message *discordgo.MessageUpdate) {
+	parseCommand(session, message.Message.ID, message.Message.Content, message.Message.ChannelID, message.Message.Author.ID)
 }
 
 func messageHandler(session *discordgo.Session, message *discordgo.MessageCreate) {
-	var messCont = strings.ToLower(message.Content)
+	parseCommand(session, message.ID, message.Content, message.ChannelID, message.Author.ID)
+}
+
+func parseCommand(session *discordgo.Session, id string, content string, channelID string, authorID string) {
+	var messCont = strings.ToLower(content)
 	if strings.HasPrefix(messCont, config.BotPrefix) {
-		if message.Author.ID == BotID {
+		if authorID == BotID {
 			return
 		}
 
 		if strings.HasPrefix(messCont, config.BotPrefix+"start") {
 
-			pollByChannel[message.ChannelID] = start(session, message, pollByChannel)
+			pollByChannel[channelID] = start(session, channelID, content, pollByChannel)
 
-		} else if strings.HasPrefix(messCont, config.BotPrefix+"add:") {
+		} else if strings.HasPrefix(messCont, config.BotPrefix+"add ") {
 
 			//Doesn't let you pass an address for some god forsaken reason, so temp variable workaround
-			temp := pollByChannel[message.ChannelID]
-			addOption(&(temp), session, message)
-			pollByChannel[message.ChannelID] = temp
+			temp := pollByChannel[channelID]
+			addOption(&(temp), session, channelID, content)
+			pollByChannel[channelID] = temp
 
 		} else if messCont == config.BotPrefix+"bad" {
 
-			bad(session, message)
+			bad(session, channelID)
 
 		} else if strings.HasPrefix(messCont, config.BotPrefix+"getrequests") {
 
-			getFeatureList(session, message)
+			getFeatureList(session, channelID)
 
 		} else if messCont == config.BotPrefix+"girl" {
 
-			girl(session, message)
+			girl(session, channelID)
 
-		} else if messCont == config.BotPrefix+"help" || messCont == config.BotPrefix+"elp" {
+		} else if strings.HasPrefix(messCont, config.BotPrefix+"help") || strings.HasPrefix(messCont, config.BotPrefix+"elp") {
 
-			help(session, message)
+			help(session, channelID, content)
 
-		} else if strings.HasPrefix(messCont, config.BotPrefix+"remove:") {
+		} else if strings.HasPrefix(messCont, config.BotPrefix+"remove ") {
 
 			//Doesn't let you pass an address for some god forsaken reason, so temp variable workaround
-			temp := pollByChannel[message.ChannelID]
-			removeOption(&(temp), session, message)
-			pollByChannel[message.ChannelID] = temp
+			temp := pollByChannel[channelID]
+			removeOption(&(temp), session, content)
+			pollByChannel[channelID] = temp
 
 		} else if messCont == config.BotPrefix+"repin" {
 
-			pin(pollByChannel[message.ChannelID], session)
+			pin(pollByChannel[channelID], session)
 
-		} else if strings.HasPrefix(messCont, config.BotPrefix+"request:") {
+		} else if strings.HasPrefix(messCont, config.BotPrefix+"request ") {
 
-			addFeature(session, message)
+			addFeature(session, channelID, content)
 
 		} else if strings.HasPrefix(messCont, config.BotPrefix+"reset") {
 
-			var poll = pollByChannel[message.ChannelID]
+			var poll = pollByChannel[channelID]
 			var newPoll = poll
 			var split = strings.Split(messCont, " ")
 			if poll.Entries == nil || (len(split) > 1 && split[1] == "all") {
-				newPoll = reset(pollByChannel, session, message)
+				newPoll = reset(pollByChannel, session, channelID, content)
 			} else if len(split) == 1 {
-				newPoll = resetCarryOver(poll, session, message, "")
+				newPoll = resetCarryOver(poll, session, "")
 			} else {
-				newPoll = resetCarryOver(poll, session, message, split[1])
+				newPoll = resetCarryOver(poll, session, split[1])
 			}
-			pollByChannel[message.ChannelID] = newPoll
+			pollByChannel[channelID] = newPoll
 
 		} else if strings.HasPrefix(messCont, config.BotPrefix+"result") {
 
-			var poll = pollByChannel[message.ChannelID]
+			var poll = pollByChannel[channelID]
 			var res = getResult(poll, session)
 			_, _ = session.ChannelMessageSend(poll.Channel, res)
 
 		} else if messCont == config.BotPrefix+"runoff" {
 
-			var poll = pollByChannel[message.ChannelID]
-			runoff(poll, session, message)
+			var poll = pollByChannel[channelID]
+			runoff(poll, session)
 
 		} else if messCont == config.BotPrefix+"runoffResult" {
 
-			var poll = pollByChannel[message.ChannelID]
+			var poll = pollByChannel[channelID]
 			var res = runoffRes(poll, session)
-			_, _ = session.ChannelMessageSend(message.ChannelID, res)
+			_, _ = session.ChannelMessageSend(channelID, res)
 
+		} else if messCont == config.BotPrefix+"schedule" {
+			schedule(session, channelID, content)
 		} else if messCont == config.BotPrefix+"shutdown" {
-			if message.Author.ID == config.AdminID {
-				session.ChannelMessageDelete(message.ChannelID, message.ID)
+			if authorID == config.AdminID {
 				forceShutdown(session, pollByChannel)
 			}
 
 		} else if messCont == config.BotPrefix+"view" {
 
-			view(pollByChannel[message.ChannelID], session)
+			view(pollByChannel[channelID], session)
 
 		} else {
 			return
 		}
 
-		session.ChannelMessageDelete(message.ChannelID, message.ID)
+		session.ChannelMessageDelete(channelID, id)
 	}
 }

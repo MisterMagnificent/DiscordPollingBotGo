@@ -7,7 +7,7 @@ import (
 )
 
 //remove the winner
-func resetCarryOver(poll Poll, session *discordgo.Session, message *discordgo.MessageCreate, winner string) Poll {
+func resetCarryOver(poll Poll, session *discordgo.Session, winner string) Poll {
 	unpin(poll, session)
 	var won string = winner
 	if winner == "" {
@@ -38,6 +38,6 @@ func resetCarryOver(poll Poll, session *discordgo.Session, message *discordgo.Me
 	return poll
 }
 
-func reset(pollByChannel map[string]Poll, session *discordgo.Session, message *discordgo.MessageCreate) Poll {
-	return start(session, message, pollByChannel)
+func reset(pollByChannel map[string]Poll, session *discordgo.Session, channelID string, content string) Poll {
+	return start(session, channelID, content, pollByChannel)
 }

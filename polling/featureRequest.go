@@ -7,15 +7,17 @@ import (
 
 var featureRequestList []string = []string{}
 
-func addFeature(session *discordgo.Session, message *discordgo.MessageCreate) {
-	var split = strings.Split(message.Content, ": ")
+func addFeature(session *discordgo.Session, channelID string, content string) {
+	index := strings.IndexByte(content, ' ')
+	chars := []rune(content)
+	option := string(chars[index+1:])
 
-	if len(split) > 1 {
-		featureRequestList = append(featureRequestList, split[1])
-		_, _ = session.ChannelMessageSend(message.ChannelID, "Feature request of '"+split[1]+"' noted, thank you")
+	if option != "" {
+		featureRequestList = append(featureRequestList, option)
+		_, _ = session.ChannelMessageSend(channelID, "Feature request of '"+option+"' noted, thank you")
 	}
 }
 
-func getFeatureList(session *discordgo.Session, message *discordgo.MessageCreate) {
-	_, _ = session.ChannelMessageSend(message.ChannelID, "Features currently requested: \n"+strings.Join(featureRequestList, "\n"))
+func getFeatureList(session *discordgo.Session, channelID string) {
+	_, _ = session.ChannelMessageSend(channelID, "Features currently requested: \n"+strings.Join(featureRequestList, "\n"))
 }

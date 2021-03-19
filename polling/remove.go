@@ -5,13 +5,16 @@ import (
 	"strings"
 )
 
-func removeOption(poll *Poll, session *discordgo.Session, message *discordgo.MessageCreate) {
-	var split = strings.Split(message.Content, ": ")
+func removeOption(poll *Poll, session *discordgo.Session, content string) {
+	index := strings.IndexByte(content, ' ')
+	chars := []rune(content)
+	option := string(chars[index+1:])
 
-	if len(split) > 1 {
-		removeOptionHelper(poll, session, split[1], true)
+	if option != "" {
+		removeOptionHelper(poll, session, option, true)
 	}
 }
+
 func removeOptionHelper(poll *Poll, session *discordgo.Session, element string, removeText bool) {
 	var tempEmote = (*poll).EntriesReverse[element]
 	delete((*poll).EntriesReverse, element)
