@@ -1,7 +1,6 @@
 package polling
 
 import (
-	"fmt"
 	"github.com/MisterMagnificient/DiscordPollingBotGo/config"
 	"github.com/bwmarrin/discordgo"
 	"strings"
@@ -18,9 +17,7 @@ func resetCarryOver(poll Poll, session *discordgo.Session, winner string) Poll {
 		won = splitRes[0]
 	}
 
-	fmt.Println("%s", poll)
 	removeOptionHelper(&(poll), session, won, false)
-	fmt.Println("%s", poll)
 
 	var oldMessageId = poll.PollMessage.ID
 	var newMessage string = "Poll reset.  New poll with carryover has begun:"
@@ -29,7 +26,6 @@ func resetCarryOver(poll Poll, session *discordgo.Session, winner string) Poll {
 	for key, val := range poll.EntriesReverse {
 		var users, _ = session.MessageReactions(poll.Channel, oldMessageId, val, 100, "", "")
 		var size = len(users)
-		fmt.Println("key: "+key+", "+val+"; entry: "+poll.Entries[key]+".  %s.  size %d", users, size)
 
 		if size >= config.MinCarryOver {
 			poll.PollMessage.Content = poll.PollMessage.Content + "\n" + key + ": " + val + "\n"
