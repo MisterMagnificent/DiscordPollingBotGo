@@ -22,11 +22,11 @@ func addOption(poll *Poll, session *discordgo.Session, channelID string, content
 	}
 
 	if config.LogAdd {
-		if val, ok := temp.LastMessage["add"]; ok {
-			session.ChannelMessageDelete(poll.Channel, val.id)
+		if val, ok := poll.LastMessage["add"]; ok {
+			session.ChannelMessageDelete(poll.Channel, val.ID)
 		}
 
-		temp.LastMessage["add"], _ = session.ChannelMessageSend(poll.Channel, "User "+authorID+" has added "+option+" to the poll")
+		poll.LastMessage["add"], _ = session.ChannelMessageSend(poll.Channel, "User "+authorID+" has added "+option+" to the poll")
 	}
 }
 

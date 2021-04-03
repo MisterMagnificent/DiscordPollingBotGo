@@ -79,8 +79,8 @@ func parseCommand(session *discordgo.Session, id string, content string, channel
 		}
 
 		if strings.HasPrefix(messCont, config.BotPrefix+"start") {
-			if val, ok := pollByChannel[channelID]; ok && !strings.HasPrefix(messCont, config.BotPrefix+"start!") {
-				_, _ = session.ChannelMessageSend(poll.Channel, "A poll already exists for this channel.  If you want to force a new one, use '***start!***'")
+			if _, ok := pollByChannel[channelID]; ok && !strings.HasPrefix(messCont, config.BotPrefix+"start!") {
+				_, _ = session.ChannelMessageSend(channelID, "A poll already exists for this channel.  If you want to force a new one, use '***start!***'")
 			} else {
 				pollByChannel[channelID] = start(session, channelID, content, pollByChannel)
 			}

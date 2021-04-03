@@ -28,7 +28,7 @@ func New() Poll {
 		entries[element] = element
 	}
 
-	poll := Poll{LastLetter: 0, Emotes: emotes, Entries: entries, EntriesReverse: map[string]string{}, LastMessage: map[string]*discordgo.Message}
+	poll := Poll{LastLetter: 0, Emotes: emotes, Entries: entries, EntriesReverse: map[string]string{}, LastMessage: map[string]*discordgo.Message{}}
 	//create emotes
 	return poll
 }
