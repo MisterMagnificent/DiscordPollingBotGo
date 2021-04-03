@@ -61,19 +61,20 @@ func Cleanup() {
 
 func updateHandler(session *discordgo.Session, message *discordgo.MessageUpdate) {
 	if message.Message != nil && message.Message.Author != nil {
-		parseCommand(session, message.Message.ID, message.Message.Content, message.Message.ChannelID, message.Message.Author.ID)
+		parseCommand(session, message.Message.ID, message.Message.Content, message.Message.ChannelID, message.Message.Author)
 	} else {
 		fmt.Println("Issues with this message: %s", message.Message)
 	}
 }
 
 func messageHandler(session *discordgo.Session, message *discordgo.MessageCreate) {
-	parseCommand(session, message.ID, message.Content, message.ChannelID, message.Author.ID)
+	parseCommand(session, message.ID, message.Content, message.ChannelID, message.Author)
 }
 
-func parseCommand(session *discordgo.Session, id string, content string, channelID string, authorID string) {
+func parseCommand(session *discordgo.Session, id string, content string, channelID string, author *discordgo.User) {
 	var messCont = strings.ToLower(content)
 	if strings.HasPrefix(messCont, config.BotPrefix) {
+		var authorID = author.ID
 		if authorID == BotID {
 			return
 		}
@@ -89,7 +90,7 @@ func parseCommand(session *discordgo.Session, id string, content string, channel
 
 			//Doesn't let you pass an address for some god forsaken reason, so temp variable workaround
 			temp := pollByChannel[channelID]
-			addOption(&(temp), session, channelID, content, authorID)
+			addOption(&(temp), session, channelID, content, author)
 			pollByChannel[channelID] = temp
 
 		} else if messCont == config.BotPrefix+"bad" {

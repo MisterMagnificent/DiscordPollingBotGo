@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func addOption(poll *Poll, session *discordgo.Session, channelID string, content string, authorID string) {
+func addOption(poll *Poll, session *discordgo.Session, channelID string, content string, author *discordgo.User) {
 	index := strings.IndexByte(content, ' ')
 	chars := []rune(content)
 	option := string(chars[index+1:])
@@ -26,7 +26,7 @@ func addOption(poll *Poll, session *discordgo.Session, channelID string, content
 			session.ChannelMessageDelete(poll.Channel, val.ID)
 		}
 
-		poll.LastMessage["add"], _ = session.ChannelMessageSend(poll.Channel, "User "+authorID+" has added "+option+" to the poll")
+		poll.LastMessage["add"], _ = session.ChannelMessageSend(poll.Channel, "User "+author.Username+" has added "+option+" to the poll")
 	}
 }
 
