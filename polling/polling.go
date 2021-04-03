@@ -79,19 +79,26 @@ func parseCommand(session *discordgo.Session, id string, content string, channel
 		}
 
 		if strings.HasPrefix(messCont, config.BotPrefix+"start") {
-
-			pollByChannel[channelID] = start(session, channelID, content, pollByChannel)
+			if val, ok := pollByChannel[channelID]; ok && !strings.HasPrefix(messCont, config.BotPrefix+"start!") {
+				_, _ = session.ChannelMessageSend(poll.Channel, "A poll already exists for this channel.  If you want to force a new one, use '***start!***'")
+			} else {
+				pollByChannel[channelID] = start(session, channelID, content, pollByChannel)
+			}
 
 		} else if strings.HasPrefix(messCont, config.BotPrefix+"add ") {
 
 			//Doesn't let you pass an address for some god forsaken reason, so temp variable workaround
 			temp := pollByChannel[channelID]
-			addOption(&(temp), session, channelID, content)
+			addOption(&(temp), session, channelID, content, authorID)
 			pollByChannel[channelID] = temp
 
 		} else if messCont == config.BotPrefix+"bad" {
 
 			bad(session, channelID)
+
+		} else if messCont == config.BotPrefix+"derek" {
+
+			derek(session, channelID)
 
 		} else if strings.HasPrefix(messCont, config.BotPrefix+"getrequests") {
 

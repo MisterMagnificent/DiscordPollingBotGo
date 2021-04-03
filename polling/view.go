@@ -6,6 +6,9 @@ import (
 
 func view(poll Poll, session *discordgo.Session) {
 	if poll.PollMessage != nil {
-		session.ChannelMessageSendReply(poll.Channel, "Here's the poll ^", poll.PollMessage.Reference())
+		if val, ok := poll.LastMessage["view"]; ok {
+			session.ChannelMessageDelete(poll.Channel, val.id)
+		}
+		poll.LastMessage["view"], _ = session.ChannelMessageSendReply(poll.Channel, "Here's the poll ^", poll.PollMessage.Reference())
 	}
 }

@@ -1,11 +1,12 @@
 package polling
 
 import (
+	"github.com/MisterMagnificient/DiscordPollingBotGo/config"
 	"github.com/bwmarrin/discordgo"
 	"strings"
 )
 
-func addOption(poll *Poll, session *discordgo.Session, channelID string, content string) {
+func addOption(poll *Poll, session *discordgo.Session, channelID string, content string, authorID string) {
 	index := strings.IndexByte(content, ' ')
 	chars := []rune(content)
 	option := string(chars[index+1:])
@@ -18,6 +19,14 @@ func addOption(poll *Poll, session *discordgo.Session, channelID string, content
 				addHelper(poll, session, channelID, strings.TrimSpace(split[index]))
 			}
 		}
+	}
+
+	if config.LogAdd {
+		if val, ok := temp.LastMessage["add"]; ok {
+			session.ChannelMessageDelete(poll.Channel, val.id)
+		}
+
+		temp.LastMessage["add"], _ = session.ChannelMessageSend(poll.Channel, "User "+authorID+" has added "+option+" to the poll")
 	}
 }
 
