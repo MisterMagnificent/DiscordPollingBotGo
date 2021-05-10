@@ -6,12 +6,7 @@ import (
 )
 
 // %schedule Description of the event you're going for 2-4[# of ppl] #hoursLength[optional]
-func scheduleEvent(session *discordgo.Session, channelID string, options string) {
-	eventMan := eventManagerByChannel[channelID]
-	if eventMan.LastEmote == 0 {
-		eventManagerByChannel[channelID] = NewEventManager()
-	}
-
+func scheduleEvent(eventMan *EventManager, session *discordgo.Session, channelID string, options string) {
 	lastSpaceIndex := strings.LastIndex(options, " ")
 	lastString := options[lastSpaceIndex+1:]
 	restOfOptions := options[0:lastSpaceIndex]
@@ -38,9 +33,9 @@ func scheduleEvent(session *discordgo.Session, channelID string, options string)
 	eve.NumPlayers = numPeople
 	eve.Length = hoursLength
 
-	var emote string = eventMan.Emotes[eventMan.LastEmote] //Pull from dictionary
-	eventMan.LastEmote++
+	var emote string = (*eventMan).Emotes[(*eventMan).LastEmote] //Pull from dictionary
+	(*eventMan).LastEmote++
 
-	eventMan.Events[emote] = eve
-	eventMan.EventsReverse[eve] = emote
+	((*eventMan).Events)[emote] = eve
+	((*eventMan).EventsReverse)[eve] = emote
 }

@@ -152,7 +152,12 @@ func parseCommand(session *discordgo.Session, id string, content string, channel
 			var res = runoffRes(poll, session)
 			_, _ = session.ChannelMessageSend(channelID, res)
 		case "schedule":
-			scheduleEvent(session, channelID, options)
+			eventManager := eventManagerByChannel[channelID]
+			if eventManager.LastEmote == 0 {
+				eventManager = NewEventManager()
+			}
+			scheduleEvent(&(eventManager), session, channelID, options)
+			eventManagerByChannel[channelID] = eventManager
 		case "schedulemessage":
 			scheduleMessage(session, channelID, options)
 		case "shutdown":
