@@ -79,98 +79,86 @@ func parseCommand(session *discordgo.Session, id string, content string, channel
 			return
 		}
 
-		if strings.HasPrefix(messCont, config.BotPrefix+"start") {
-			if _, ok := pollByChannel[channelID]; ok && !strings.HasPrefix(messCont, config.BotPrefix+"start!") {
+		// Get the command (pre first space), then grab everything after as the "options" as they could be a single option with spacing, that parsing is left to the command itself
+		index := strings.IndexByte(messCont, ' ')
+		lowerChars := []rune(messCont)
+		command := ""
+		options := ""
+
+		if index != -1 {
+			command = string(lowerChars[1:index])
+
+			//Options is the only thing that needs to save capitalization
+			chars := []rune(content)
+			options = string(chars[index+1:])
+		} else {
+			command = string(lowerChars[1:])
+		}
+
+		switch command {
+		case "start":
+			if _, ok := pollByChannel[channelID]; ok {
 				_, _ = session.ChannelMessageSend(channelID, "A poll already exists for this channel.  If you want to force a new one, use '***start!***'")
 			} else {
-				pollByChannel[channelID] = start(session, channelID, content, pollByChannel)
+				pollByChannel[channelID] = start(session, channelID, options, pollByChannel)
 			}
-
-		} else if strings.HasPrefix(messCont, config.BotPrefix+"add ") {
-
+		case "start!":
+			pollByChannel[channelID] = start(session, channelID, options, pollByChannel)
+		case "add":
 			//Doesn't let you pass an address for some god forsaken reason, so temp variable workaround
 			temp := pollByChannel[channelID]
-			addOption(&(temp), session, channelID, content, author)
+			addOption(&(temp), session, channelID, options, author)
 			pollByChannel[channelID] = temp
-
-		} else if messCont == config.BotPrefix+"bad" {
-
+		case "bad":
 			bad(session, channelID)
-
-		} else if messCont == config.BotPrefix+"derek" {
-
+		case "derek":
 			derek(session, channelID)
-
-		} else if strings.HasPrefix(messCont, config.BotPrefix+"getrequests") {
-
+		case "elp":
+			elp(session, channelID)
+		case "getrequests":
 			getFeatureList(session, channelID)
-
-		} else if messCont == config.BotPrefix+"girl" {
-
+		case "girl":
 			girl(session, channelID)
-
-		} else if strings.HasPrefix(messCont, config.BotPrefix+"help") || strings.HasPrefix(messCont, config.BotPrefix+"elp") {
-
-			help(session, channelID, content)
-
-		} else if strings.HasPrefix(messCont, config.BotPrefix+"remove ") {
-
+		case "help":
+			help(session, channelID, options)
+		case "remove":
 			//Doesn't let you pass an address for some god forsaken reason, so temp variable workaround
 			temp := pollByChannel[channelID]
-			removeOption(&(temp), session, content)
+			removeOption(&(temp), session, options)
 			pollByChannel[channelID] = temp
-
-		} else if messCont == config.BotPrefix+"repin" {
-
+		case "repin":
 			pin(pollByChannel[channelID], session)
-
-		} else if strings.HasPrefix(messCont, config.BotPrefix+"request ") {
-
-			addFeature(session, channelID, content)
-
-		} else if strings.HasPrefix(messCont, config.BotPrefix+"reset") {
-
+		case "request":
+			addFeature(session, channelID, options)
+		case "reset":
 			var poll = pollByChannel[channelID]
 			var newPoll = poll
-			var split = strings.Split(messCont, " ")
-			if poll.Entries == nil || (len(split) > 1 && split[1] == "all") {
-				newPoll = reset(pollByChannel, session, channelID, content)
-			} else if len(split) == 1 {
-				newPoll = resetCarryOver(poll, session, "")
+			if poll.Entries == nil || options == "all" {
+				newPoll = reset(pollByChannel, session, channelID)
 			} else {
-				newPoll = resetCarryOver(poll, session, split[1])
+				newPoll = resetCarryOver(poll, session, options)
 			}
 			pollByChannel[channelID] = newPoll
-
-		} else if strings.HasPrefix(messCont, config.BotPrefix+"result") {
-
+		case "result":
 			var poll = pollByChannel[channelID]
 			var res = getResult(poll, session)
 			_, _ = session.ChannelMessageSend(poll.Channel, res)
-
-		} else if messCont == config.BotPrefix+"runoff" {
-
+		case "runoff":
 			var poll = pollByChannel[channelID]
 			runoff(poll, session)
-
-		} else if messCont == config.BotPrefix+"runoffResult" {
-
+		case "runoffresult":
 			var poll = pollByChannel[channelID]
 			var res = runoffRes(poll, session)
 			_, _ = session.ChannelMessageSend(channelID, res)
-
-		} else if strings.HasPrefix(messCont, config.BotPrefix+"schedule") {
-			schedule(session, channelID, content)
-		} else if messCont == config.BotPrefix+"shutdown" {
+		case "schedulemessage":
+			scheduleMessage(session, channelID, options)
+		case "shutdown":
 			if authorID == config.AdminID {
 				forceShutdown(session, pollByChannel)
 			}
-
-		} else if messCont == config.BotPrefix+"view" {
-
+		case "view":
 			view(pollByChannel[channelID], session)
-
-		} else {
+		default:
 			return
 		}
 

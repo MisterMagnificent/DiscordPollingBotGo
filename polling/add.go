@@ -6,11 +6,7 @@ import (
 	"strings"
 )
 
-func addOption(poll *Poll, session *discordgo.Session, channelID string, content string, author *discordgo.User) {
-	index := strings.IndexByte(content, ' ')
-	chars := []rune(content)
-	option := string(chars[index+1:])
-
+func addOption(poll *Poll, session *discordgo.Session, channelID string, option string, author *discordgo.User) {
 	if option != "" {
 		var split = strings.Split(option, ";")
 

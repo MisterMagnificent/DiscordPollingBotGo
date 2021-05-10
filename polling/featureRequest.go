@@ -7,11 +7,7 @@ import (
 
 var featureRequestList []string = []string{}
 
-func addFeature(session *discordgo.Session, channelID string, content string) {
-	index := strings.IndexByte(content, ' ')
-	chars := []rune(content)
-	option := string(chars[index+1:])
-
+func addFeature(session *discordgo.Session, channelID string, option string) {
 	if option != "" {
 		featureRequestList = append(featureRequestList, option)
 		_, _ = session.ChannelMessageSend(channelID, "Feature request of '"+option+"' noted, thank you")

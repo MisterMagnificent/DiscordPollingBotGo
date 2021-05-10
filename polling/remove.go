@@ -2,14 +2,10 @@ package polling
 
 import (
 	"github.com/bwmarrin/discordgo"
-	"strings"
+	"regexp"
 )
 
-func removeOption(poll *Poll, session *discordgo.Session, content string) {
-	index := strings.IndexByte(content, ' ')
-	chars := []rune(content)
-	option := string(chars[index+1:])
-
+func removeOption(poll *Poll, session *discordgo.Session, option string) {
 	if option != "" {
 		removeOptionHelper(poll, session, option, true)
 	}
@@ -25,7 +21,8 @@ func removeOptionHelper(poll *Poll, session *discordgo.Session, element string, 
 	(*poll).Emotes[len((*poll).Emotes)] = tempEmote
 
 	if removeText {
-		(*poll).PollMessage.Content = strings.ReplaceAll((*poll).PollMessage.Content, "\n"+element+": "+tempEmote+"\n", "")
+		regex := regexp.MustCompile("\\n" + element + ": " + tempEmote + "\\n[^\\n]*\\n")
+		(*poll).PollMessage.Content = regex.ReplaceAllString((*poll).PollMessage.Content, "")
 
 		_, _ = session.ChannelMessageEdit(poll.Channel, (*poll).PollMessage.ID, (*poll).PollMessage.Content)
 		go session.MessageReactionsRemoveEmoji(poll.Channel, (*poll).PollMessage.ID, tempEmote)

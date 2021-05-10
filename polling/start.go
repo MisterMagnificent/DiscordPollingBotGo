@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-func start(session *discordgo.Session, channel string, content string, pollByChannel map[string]Poll) Poll {
+func start(session *discordgo.Session, channel string, question string, pollByChannel map[string]Poll) Poll {
 	var poll Poll = New()
 	poll.Channel = channel
 
@@ -14,9 +14,6 @@ func start(session *discordgo.Session, channel string, content string, pollByCha
 	}
 
 	var questionMessage = "Which one"
-	index := strings.IndexByte(content, ' ')
-	chars := []rune(content)
-	question := string(chars[index+1:])
 	if question != "" {
 		questionMessage = question
 		if strings.Contains(questionMessage, "movie") || strings.Contains(questionMessage, "Movie") {

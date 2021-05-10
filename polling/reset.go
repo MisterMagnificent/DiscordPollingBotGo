@@ -38,6 +38,6 @@ func resetCarryOver(poll Poll, session *discordgo.Session, winner string) Poll {
 	return poll
 }
 
-func reset(pollByChannel map[string]Poll, session *discordgo.Session, channelID string, content string) Poll {
-	return start(session, channelID, content, pollByChannel)
+func reset(pollByChannel map[string]Poll, session *discordgo.Session, channelID string) Poll {
+	return start(session, channelID, pollByChannel[channelID].Question, pollByChannel)
 }
