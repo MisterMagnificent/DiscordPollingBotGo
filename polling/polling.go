@@ -14,6 +14,7 @@ var goBot **discordgo.Session
 var ourScheduler **scheduler.Scheduler
 
 var pollByChannel map[string]Poll = make(map[string]Poll)
+var eventManagerByChannel map[string]EventManager = make(map[string]EventManager)
 
 func Start() {
 	bot, err := discordgo.New("Bot " + config.Token)
@@ -45,7 +46,7 @@ func Start() {
 
 	bot.UpdateListeningStatus(config.BotPrefix + " for any commands")
 
-	setup(&pollByChannel)
+	setup(&pollByChannel, &eventManagerByChannel)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
@@ -150,6 +151,8 @@ func parseCommand(session *discordgo.Session, id string, content string, channel
 			var poll = pollByChannel[channelID]
 			var res = runoffRes(poll, session)
 			_, _ = session.ChannelMessageSend(channelID, res)
+		case "schedule":
+			scheduleEvent(session, channelID, options)
 		case "schedulemessage":
 			scheduleMessage(session, channelID, options)
 		case "shutdown":

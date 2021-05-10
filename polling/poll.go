@@ -19,7 +19,7 @@ type Poll struct {
 	IsMovie        bool
 }
 
-func New() Poll {
+func NewPoll() Poll {
 	var emotes map[int]string = map[int]string{}
 	var entries map[string]string = map[string]string{}
 	var emoteList = strings.Split(config.Emotes, ",")
@@ -29,7 +29,6 @@ func New() Poll {
 	}
 
 	poll := Poll{LastLetter: 0, Emotes: emotes, Entries: entries, EntriesReverse: map[string]string{}, LastMessage: map[string]*discordgo.Message{}}
-	//create emotes
 	return poll
 }
 

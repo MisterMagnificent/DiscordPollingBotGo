@@ -6,7 +6,7 @@ import (
 )
 
 func start(session *discordgo.Session, channel string, question string, pollByChannel map[string]Poll) Poll {
-	var poll Poll = New()
+	var poll Poll = NewPoll()
 	poll.Channel = channel
 
 	if val, ok := pollByChannel[poll.Channel]; ok {
