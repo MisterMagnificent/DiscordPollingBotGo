@@ -6,14 +6,19 @@ import (
 )
 
 func getResult(poll Poll, session *discordgo.Session) string {
-	return getResultHelper(poll, session)
+	return getResultHelper(poll, poll.PollMessage, session)
 }
 
-func getResultHelper(poll Poll, session *discordgo.Session) string {
+func getResultSched(poll Poll, session *discordgo.Session) {
+	winner := getResultHelper(poll, poll.PollMessage, session)
+	_, _ = session.ChannelMessageSend(poll.Channel, winner)
+}
+
+func getResultHelper(poll Poll, pollMessage *discordgo.Message, session *discordgo.Session) string {
 	var biggest int = 0
 	var emote []string
 	for key, _ := range poll.Entries {
-		var users, _ = session.MessageReactions(poll.Channel, poll.PollMessage.ID, key, 100, "", "")
+		var users, _ = session.MessageReactions(poll.Channel, pollMessage.ID, key, 100, "", "")
 		var size = len(users)
 		if size >= biggest {
 			if size > biggest {

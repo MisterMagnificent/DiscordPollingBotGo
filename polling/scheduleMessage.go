@@ -30,7 +30,7 @@ func scheduleMessage(session *discordgo.Session, channelID string, options strin
 
 						switch function {
 						case "result":
-							(*ourScheduler).Every().Weekday(weekday).Hour(hour).Minute(minute).Second(0).Do(getResult, pollByChannel[channelID], session)
+							(*ourScheduler).Every().Weekday(weekday).Hour(hour).Minute(minute).Second(0).Do(getResultSched, pollByChannel[channelID], session)
 						default:
 							function = "view"
 							(*ourScheduler).Every().Weekday(weekday).Hour(hour).Minute(minute).Second(0).Do(view, pollByChannel[channelID], session)

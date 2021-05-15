@@ -145,8 +145,9 @@ func parseCommand(session *discordgo.Session, id string, content string, channel
 			var res = getResult(poll, session)
 			_, _ = session.ChannelMessageSend(poll.Channel, res)
 		case "runoff":
-			var poll = pollByChannel[channelID]
-			runoff(poll, session)
+			temp := pollByChannel[channelID]
+			runoff(&(temp), session)
+			pollByChannel[channelID] = temp
 		case "runoffresult":
 			var poll = pollByChannel[channelID]
 			var res = runoffRes(poll, session)
