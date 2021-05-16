@@ -2,14 +2,16 @@ package polling
 
 import (
 	"github.com/MisterMagnificient/DiscordPollingBotGo/config"
+	"github.com/bwmarrin/discordgo"
 	"strings"
 )
 
 type EventManager struct {
-	Emotes        map[int]string
-	Events        map[string]Event
-	EventsReverse map[Event]string
-	LastEmote     int
+	Channel      string
+	EventMessage *discordgo.Message
+	Emotes       map[int]string
+	Events       map[string]Event
+	LastEmote    int
 }
 
 func NewEventManager() EventManager {
@@ -19,6 +21,6 @@ func NewEventManager() EventManager {
 		emotes[index] = element
 	}
 
-	eventMan := EventManager{LastEmote: 0, Emotes: emotes, Events: map[string]Event{}, EventsReverse: map[Event]string{}}
+	eventMan := EventManager{LastEmote: 0, Emotes: emotes, Events: map[string]Event{}}
 	return eventMan
 }

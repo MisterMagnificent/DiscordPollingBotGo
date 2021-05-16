@@ -37,5 +37,15 @@ func scheduleEvent(eventMan *EventManager, session *discordgo.Session, channelID
 	(*eventMan).LastEmote++
 
 	((*eventMan).Events)[emote] = eve
-	((*eventMan).EventsReverse)[eve] = emote
+	(*eventMan).Channel = channelID
+
+	eveMess := emote + ": " + eve.Description + " - " + eve.NumPlayers + " Players - for " + eve.Length + " hour(s)"
+
+	if (*eventMan).EventMessage == nil {
+		(*eventMan).EventMessage, _ = session.ChannelMessageSend(channelID, "Events\nVote for which you'd like to join:\n"+eveMess)
+	} else {
+		(*eventMan).EventMessage.Content = (*eventMan).EventMessage.Content + "\n\n" + eveMess
+		_, _ = session.ChannelMessageEdit(channelID, (*eventMan).EventMessage.ID, (*eventMan).EventMessage.Content)
+	}
+	go session.MessageReactionAdd(channelID, (*eventMan).EventMessage.ID, emote)
 }

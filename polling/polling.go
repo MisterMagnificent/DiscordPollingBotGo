@@ -16,6 +16,8 @@ var ourScheduler **scheduler.Scheduler
 var pollByChannel map[string]Poll = make(map[string]Poll)
 var eventManagerByChannel map[string]EventManager = make(map[string]EventManager)
 
+var channelsByUser map[string]map[string]struct{} = make(map[string]map[string]struct{})
+
 func Start() {
 	bot, err := discordgo.New("Bot " + config.Token)
 	if err != nil {
@@ -41,6 +43,7 @@ func Start() {
 
 	bot.AddHandler(messageHandler)
 	bot.AddHandler(updateHandler)
+	bot.AddHandler(reactHandler)
 
 	err = bot.Open()
 
@@ -60,6 +63,20 @@ func Cleanup() {
 	shutdown(*goBot, pollByChannel)
 }
 
+func reactHandler(session *discordgo.Session, message *discordgo.MessageReactionAdd) {
+	if message.MessageReaction != nil && message.MessageReaction.ChannelID != "" {
+		if message.MessageReaction.UserID == BotID {
+			return
+		}
+
+		temp := eventManagerByChannel[message.MessageReaction.ChannelID]
+		checkEventsAfterReact(&(temp), message.MessageReaction, session)
+		eventManagerByChannel[message.MessageReaction.ChannelID] = temp
+	} else {
+		fmt.Println("Issues with this React: %s", message.MessageReaction)
+	}
+}
+
 func updateHandler(session *discordgo.Session, message *discordgo.MessageUpdate) {
 	if message.Message != nil && message.Message.Author != nil {
 		parseCommand(session, message.Message.ID, message.Message.Content, message.Message.ChannelID, message.Message.Author)
@@ -73,12 +90,13 @@ func messageHandler(session *discordgo.Session, message *discordgo.MessageCreate
 }
 
 func parseCommand(session *discordgo.Session, id string, content string, channelID string, author *discordgo.User) {
+	var authorID = author.ID
+	if authorID == BotID {
+		return
+	}
+
 	var messCont = strings.ToLower(content)
 	if strings.HasPrefix(messCont, config.BotPrefix) {
-		var authorID = author.ID
-		if authorID == BotID {
-			return
-		}
 
 		// Get the command (pre first space), then grab everything after as the "options" as they could be a single option with spacing, that parsing is left to the command itself
 		index := strings.IndexByte(messCont, ' ')
@@ -172,5 +190,16 @@ func parseCommand(session *discordgo.Session, id string, content string, channel
 		}
 
 		session.ChannelMessageDelete(channelID, id)
+	} else {
+		fmt.Println(channelsByUser)
+		fmt.Println(authorID)
+		for chann, _ := range channelsByUser[authorID] {
+			eventManager := eventManagerByChannel[chann]
+			fmt.Println(eventManager)
+			if eventManager.LastEmote != 0 {
+				respondedWithSchedule(&(eventManager), authorID, content, channelID, session)
+				eventManagerByChannel[chann] = eventManager
+			}
+		}
 	}
 }
