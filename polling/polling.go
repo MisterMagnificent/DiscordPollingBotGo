@@ -191,11 +191,8 @@ func parseCommand(session *discordgo.Session, id string, content string, channel
 
 		session.ChannelMessageDelete(channelID, id)
 	} else {
-		fmt.Println(channelsByUser)
-		fmt.Println(authorID)
 		for chann, _ := range channelsByUser[authorID] {
 			eventManager := eventManagerByChannel[chann]
-			fmt.Println(eventManager)
 			if eventManager.LastEmote != 0 {
 				respondedWithSchedule(&(eventManager), authorID, content, channelID, session)
 				eventManagerByChannel[chann] = eventManager
