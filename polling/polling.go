@@ -70,7 +70,7 @@ func reactHandler(session *discordgo.Session, message *discordgo.MessageReaction
 		}
 
 		temp := eventManagerByChannel[message.MessageReaction.ChannelID]
-		checkEventsAfterReact(&(temp), message.MessageReaction, session)
+		//checkEventsAfterReact(&(temp), message.MessageReaction, session)
 		eventManagerByChannel[message.MessageReaction.ChannelID] = temp
 	} else {
 		fmt.Println("Issues with this React: %s", message.MessageReaction)
@@ -140,6 +140,8 @@ func parseCommand(session *discordgo.Session, id string, content string, channel
 			girl(session, channelID)
 		case "help":
 			help(session, channelID, options)
+		case "jason":
+			jason(session, channelID)
 		case "remove":
 			//Doesn't let you pass an address for some god forsaken reason, so temp variable workaround
 			temp := pollByChannel[channelID]
