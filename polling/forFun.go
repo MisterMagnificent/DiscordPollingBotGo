@@ -31,3 +31,7 @@ func jason(session *discordgo.Session, channelID string) {
 func elp(session *discordgo.Session, channelID string) {
 	_, _ = session.ChannelMessageSend(channelID, "https://media1.tenor.com/images/347047c2bf923c8e0861bb76e8f2644b/tenor.gif")
 }
+
+func nft(session *discordgo.Session, channelID string) {
+	_, _ = session.ChannelMessageSend(channelID, "Do not right click copy plz https://www.cheatsheet.com/wp-content/uploads/2020/09/DArcy-Carden-2.jpg")
+}
