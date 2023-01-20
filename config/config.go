@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"strings"
 )
 
 var (
@@ -13,8 +14,7 @@ var (
 	Emotes       string
 	AdminID      string
 	LogAdd       bool
-	Users        string
-	DiscordTags  string
+	Tags         map[string]string
 
 	config *configStruct
 )
@@ -55,6 +55,13 @@ func ReadConfig() error {
 	Emotes = config.Emotes
 	AdminID = config.AdminID
 	LogAdd = config.LogAdd
+
+	var users = strings.Split(config.Users, ",")
+	var discordTags = strings.Split(config.DiscordTags, ",")
+	Tags := make(map[string]string)
+	for i := 0; i < len(users); i++ {
+		Tags[string(users[i])] = string(discordTags[i])
+	}
 
 	return nil
 }

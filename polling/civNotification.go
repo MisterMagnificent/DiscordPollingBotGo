@@ -1,8 +1,12 @@
 package polling
 
-import ()
+import (
+	"github.com/MisterMagnificient/DiscordPollingBotGo/config"
+	"github.com/bwmarrin/discordgo"
+	"strings"
+)
 
-func civNotification(content) {
+func civNotification(session *discordgo.Session, channelID string, id string, content string) {
 	indexAt := strings.IndexByte(content, '@')
 	indexHash := strings.IndexByte(content, '#')
 	allChars := []rune(content)
@@ -15,7 +19,7 @@ func civNotification(content) {
 	var gameName = string(restAllChars[firstSpace+4 : len(restAllChars)-1])
 
 	var tag = name
-	value, exists := config.tags[name]
+	value, exists := config.Tags[name]
 	if exists {
 		tag = value
 	}

@@ -97,7 +97,7 @@ func parseCommand(session *discordgo.Session, id string, content string, channel
 
 	//Uncle Sam hard coded catch
 	if authorID == "647538906719584266" {
-		civNotification(content)
+		civNotification(session, channelID, id, content)
 		return
 	}
 
