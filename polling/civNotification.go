@@ -14,24 +14,10 @@ func civNotification(content) {
 	var turn = string(restAllChars[1:firstSpace])
 	var gameName = string(restAllChars[firstSpace+4 : len(restAllChars)-1])
 
-	var tag = ""
-	switch name {
-	case "Mr Magnificent":
-		tag = "<@110933964654407680>"
-	case "HaydenKale":
-		tag = "<@427025678005960711>"
-	case "KungFoody":
-		tag = "<@604849954724511744>"
-	case "Straker":
-		tag = "<@289996211086163968>"
-	case "ajar1189":
-		tag = "<@179400614948634624>"
-	case "Link":
-		tag = "<@108799298849751040>"
-	case "hcycyota":
-		tag = "<@399914099011616768>"
-	default:
-		tag = name
+	var tag = name
+	value, exists := config.tags[name]
+	if exists {
+		tag = value
 	}
 
 	if tag != "" {

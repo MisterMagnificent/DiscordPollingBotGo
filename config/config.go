@@ -13,6 +13,8 @@ var (
 	Emotes       string
 	AdminID      string
 	LogAdd       bool
+	Users        string
+	DiscordTags  string
 
 	config *configStruct
 )
@@ -24,6 +26,8 @@ type configStruct struct {
 	Emotes       string `json:"Emotes"`
 	AdminID      string `json:"AdminID"`
 	LogAdd       bool   `json:"LogAdd"`
+	Users        string `json:"Users"`
+	DiscordTags  string `json:"DiscordTags"`
 }
 
 func ReadConfig() error {
